@@ -14,12 +14,12 @@ Suppose we want to model a two-dimensional world called Flatland
 populated by creatures of geometric shapes
 (https://url.cs51.io/flatland).  In particular, we want:
 
-- all shapes to have some notion of *area*, so that when we meet any
-  new shape, we can easily calculate the shape's area.
+  o All shapes to have some notion of *area*, so that when we meet any
+    new shape, we can easily calculate the shape's area.
 
-- to know the shape's *location* in Flatland space.
+  o To know the shape's *location* in Flatland space.
 
-- to support many different kinds of shapes.
+  o To support many different kinds of shapes.
 
 How can we solve this problem?
 
@@ -30,8 +30,8 @@ First, we'll define a point to store (x, y) coordinates. *)
 
 type point = float * float ;;
 
-(* Now we'll define an algebraic data type `shape_adt` for shapes with
-the ability to represent some shapes: a `Square`, a `Rect`, and a
+(* Now we'll define `shape_adt`, an algebraic data type for shapes,
+with the ability to represent some shapes: a `Square`, a `Rect`, and a
 `Circle`. Each shape will have some aspects that together specify its
 location and size, as follows:
 
@@ -53,7 +53,8 @@ type shape_adt =
 (*....................................................................
 Exercise 1A: Given the definitions above, write a function `area_adt`
 that accepts a `shape_adt` and returns a `float` representing the area
-of the shape.
+of the shape. (You can review the area of a circle in Section A.3 of
+the textbook.)
 ....................................................................*)
 let area_adt (s : shape_adt) : float =
   failwith "area_adt not implemented" ;;
@@ -111,9 +112,9 @@ We can resolve this difficulty with object-oriented programming.
 Below, we've created a class type (or interface). Interfaces define
 a new type and define methods for us to interact with this new type.
 
-Once we have defined this class type, then we can always create new
-shapes by defining classes that implement the shape interface. Below
-is one such interface. *)
+Once we have defined this class type, we can create new shapes by
+defining classes that implement the shape interface. Below is one such
+interface. *)
 
 class type shape =
 object
@@ -133,7 +134,6 @@ object
   (* Dilates the shape by the scale factor *)
   method scale : float -> unit
 end ;;
-
 
 (* This shape interface can have multiple classes implementing it, as so:
 
@@ -164,13 +164,18 @@ type.
 
 A class is a specification for how to build objects; you might think
 of a class as a blueprint and an instance of the class as a specific
-building created with that blueprint.
+building created with that blueprint. (A class type in this analogy
+might be a set of architectural regulations that blueprints need to
+satisfy.)
 
-Classes include:
-- Definitions of instance variables and methods. Each object, or
-  instance, of a class has its own copy of instance variables.
-- Information on how to construct and initialize objects.
-- Scope information about what to hold private.
+Classes may include:
+
+  o Definitions of instance variables and methods. Each object, or
+    instance, of a class has its own copy of instance variables.
+
+  o Information on how to construct and initialize objects.
+
+  o Scope information about what to hold private.
 
 Here, the arguments to `rect` represent *constructor* arguments:
 values necessary to initialize the object.
@@ -179,8 +184,10 @@ Notice that the type of the `rect` class is `shape`, or more properly,
 the `rect` class implements the `shape` interface.
 
 ......................................................................
-Exercise 2A: Implement the `rect` class. Consider: how do you store
-the values provided by the constructor?
+Exercise 2A: Implement the `rect` class. To think about: How do we
+store the values provided by the constructor? Keep in mind that the
+`scale` and `translate` methods may need to modify aspects of the
+object.
 ....................................................................*)
 
 class rect (p : point) (w : float) (h : float) : shape =
@@ -212,8 +219,7 @@ class rect (p : point) (w : float) (h : float) : shape =
   end ;;
 
 (*....................................................................
-Exercise 2B: Implement the `circle` class. What should the instance
-variables be for this shape?
+Exercise 2B: Implement the `circle` class.
 ....................................................................*)
 
 class circle (c : point) (r : float) : shape =
@@ -242,12 +248,11 @@ class circle (c : point) (r : float) : shape =
 
 (*....................................................................
 Exercise 2C: Implement the `square` class. Notice how similar it is to
-`rect`! In this case, we've left its implementation entirely up to
-you.
+`rect`!
 ....................................................................*)
 
 class square (p : point) (s : float) : shape =
-object(this)
+  object(this)
     method area : float =
       failwith "square area method not implemented"
 
@@ -282,9 +287,9 @@ let area (s : shape) : float =
 (*....................................................................
 Exercise 2E: Create a list of instantiated shapes called `s_list`.
 The list should contain, in order:
-1. a rect at (1, 1) with width 4 and height 5
-2. a circle at (0, -4) with radius 10
-3. a square at (-3, -2.5) with size 4.3
+1. a `rect` at (1, 1) with width 4 and height 5
+2. a `circle` at (0, -4) with radius 10
+3. a `square` at (-3, -2.5) with size 4.3
 ....................................................................*)
    
 let s_list = [] ;;
@@ -300,7 +305,7 @@ let s_list = [] ;;
    elements of a list are supposed to be of the same type? The actual
    *type* associated with the elements of the list is an "object
    type", as described in Real World OCaml
-   <https://realworldocaml.org/v1/en/html/objects.html>, in
+   <https://dev.realworldocaml.org/objects.html>, in
    particular, something like:
 
     < area : float; 
@@ -360,10 +365,15 @@ In the end, we'll have this revised type hierarchy:
 
 ......................................................................
 Exercise 3A: Implement the `square_rect` class which inherits all of
-its methods from its parent.
+its methods from its parent. 
+
+Note: In this and some later problems, we comment out the original
+stub code because it won't even compile yet until you finish the
+problem. Consequently, you're code won't compile on Gradescope until
+you complete these problems.
 ....................................................................*)
 
-(* UNCOMMENT ME AND COMPLETE
+(* UNCOMMENT AND COMPLETE
 class square_rect (p : point) (s : float) : shape = ...
  *)
 
@@ -371,11 +381,14 @@ class square_rect (p : point) (s : float) : shape = ...
 Exercise 3B: Now, implement a `square_center_scale` class that
 inherits from square, but *overrides* the `scale` method so that the
 center (rather than the lower-left corner) of the square stays in the
-same place. Hint: First scale, then translate the center to its
-original position.
+same place.
+
+You may find this tricky because you don't have access to the instance
+variables of the class that you inherit from. (Why is this?) A hint:
+First scale, then translate the center back to its original position.
 ....................................................................*)
 
-(* UNCOMMENT ME AND COMPLETE
+(* UNCOMMENT AND COMPLETE
 class square_center_scale (p: point) (s: float) : shape = ...
  *)
      
@@ -387,8 +400,8 @@ classes? *)
 Part 4: Subtyping Polymorphism and Dynamic Dispatch
 
 As we wander more around Flatland, we discover that there are more
-four-sided shapes than we originally thought. We knew about Square
-and Rect, but we've also seen Rhombi, Trapezoids, and other four-sided
+four-sided shapes than we originally thought. We knew about Square and
+Rect, but we've also seen Rhombi, Trapezoids, and other four-sided
 creatures that are collectively called Quadrilaterals.
 
 Since Square and Rect both like to identify themselves as
@@ -412,39 +425,42 @@ class type quad =
     method sides : float * float * float * float
   end ;;
 
-(* Here is our revised type hierarchy:
+(* We can revise the type hierarchy as below, adding the `quad` class type and some quadrilateral classes `square_quad` and `rect_quad`, allowing us to drop `square` and `rect` but keeping `circle`. 
 
-                        +------------+
-                        |            |
-                        |  Shape (I) |
-                        |            |
-                        +------^-----+
-                               |
-                               |  subtypes
-                               |
-                        +------+-----+
-                        |            |
-                        | quad  (I)  |
-                        |            |
-                        +-^-----^--^-+
-                          |     |  |
-             implements   |     |  |  implements
-           +--------------+     |  +------------------------+
-           |                    |                           |
-           |                    | implements                |
-   +-------+--------+      +----+-----------+      +--------+----------+
-   |                |      |                |      |                   |
-   | square_quad (C)|      |  rect_quad (C) |      | my_quad (C)       |
-   |                |      |                |      |                   |
-   +----------------+      +----------------+      +-------------------+
+                  +------------+
+                  |            |
+                  |  shape (I) |
+                  |            |
+                  +--^---^-----+
+                     |   |
+        implements   |   |
+            +--------+   +-----+
+            |                  |
+            |         subtypes |
+            |                  |
+     +------+------+     +-----+------+ 
+     |             |     |            | 
+     |  circle (C) |     |  quad  (I) | 
+     |             |     |            | 
+     +-------------+     +-^----^-----+ 
+                           |    |
+              implements   |    | implements 
+            +--------------+    +--------+ 
+            |                            |
+            |                            |
+    +-------+---------+             +----+-----------+
+    |                 |  inherits   |                |
+    | square_quad (C) <-------------+  rect_quad (C) |
+    |                 |             |                |
+    +-----------------+             +----------------+
 
 ......................................................................
-Exercise 4A: Write a class, `rect_quad`, that represents a rectangle
+Exercise 4A: Write the class `rect_quad`, which represents a rectangle
 that implements a `quad` class type. Hint: By taking advantage of
 existing classes, you should only need to implement a single method.
 ....................................................................*)
   
-(* UNCOMMENT ME
+(* UNCOMMENT AND COMPLETE
 class rect_quad (p : point) (w : float) (h : float) : quad =
   object
   end ;;
@@ -456,7 +472,7 @@ that implements a `quad` class type. Hint: you shouldn't need to
 implement any methods!
 ....................................................................*)
 
-(* UNCOMMENT ME
+(* UNCOMMENT AND COMPLETE
 class square_quad (p : point) (s : float) : quad =
   object
   end ;;
@@ -471,9 +487,13 @@ implementation you already created.
 Exercise 4C: Create an instance of `square_quad` and name it `sq`. Then,
 pass it to the area function to find out its area and store the result
 in a variable "a".
+
+Hint: If you find yourself having problems with what ought to be a
+simple exercise, see the discussion of subtype coercion in Section
+18.5.
 .....................................................................*)
 
-(* UNCOMMENT ME
+(* UNCOMMENT AND COMPLETE
 let sq : quad = ... ;;
 
 let a = ... ;;
